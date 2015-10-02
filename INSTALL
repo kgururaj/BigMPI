@@ -1,3 +1,13 @@
 # CMake
+Make sure mpicc and correct gcc version are in your PATH.
 
-cmake $(BIGMPI_SOURCE_DIR) -DCMAKE_C_COMPILER=mpicc
+Ideally, cmake should take care of everything, but a config file fails to be produced.
+
+
+cmake . -DLIB_LINKAGE_TYPE="STATIC"
+./autogen.sh
+./configure 
+cmake . -DLIB_LINKAGE_TYPE="STATIC"
+export CPATH=$PWD/src
+make test
+
