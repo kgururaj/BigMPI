@@ -44,4 +44,6 @@ void BigMPI_Convert_vectors(int                num,
                                   MPI_Datatype newtypes[],
                                   MPI_Aint     newdispls[]);
 
+size_t get_MPI_size(MPI_Datatype datatype, size_t count);
+
 #endif // BIGMPI_IMPL_H

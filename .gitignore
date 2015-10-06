@@ -2,6 +2,7 @@
 *.o
 *.x
 *~
+*.swp
 Makefile.in
 aclocal.m4
 autom4te.cache/
@@ -63,4 +64,6 @@ test/test_scatter_x
 test/test_send_recv_x
 test/test_sendrecv_x
 test/test_ssend_recv_x
-
+test/test_assert_x
+test/test_factorize
+test_inputs

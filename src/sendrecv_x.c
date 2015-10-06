@@ -1,14 +1,22 @@
 #include "bigmpi_impl.h"
 
+size_t get_MPI_size(MPI_Datatype datatype, size_t count)
+{
+  int element_size = 0;
+  MPI_Type_size(datatype, &element_size);
+  size_t total_size = count*((size_t)element_size);
+  return total_size;
+}
+
 int MPIX_Send_x(const void *buf, MPI_Count count, MPI_Datatype datatype, int dest, int tag, MPI_Comm comm)
 {
     int rc = MPI_SUCCESS;
-
-    if (likely (count <= bigmpi_int_max )) {
+    size_t total_size = get_MPI_size(datatype, count);
+    if (likely (total_size <= bigmpi_int_max )) {
         rc = MPI_Send(buf, (int)count, datatype, dest, tag, comm);
     } else {
         MPI_Datatype newtype;
-        MPIX_Type_contiguous_x(count, datatype, &newtype);
+        MPIX_Type_contiguous_x(total_size, MPI_UINT8_T, &newtype);
         MPI_Type_commit(&newtype);
         rc = MPI_Send(buf, 1, newtype, dest, tag, comm);
         MPI_Type_free(&newtype);
@@ -19,12 +27,12 @@ int MPIX_Send_x(const void *buf, MPI_Count count, MPI_Datatype datatype, int des
 int MPIX_Recv_x(void *buf, MPI_Count count, MPI_Datatype datatype, int source, int tag, MPI_Comm comm, MPI_Status *status)
 {
     int rc = MPI_SUCCESS;
-
-    if (likely (count <= bigmpi_int_max )) {
+    size_t total_size = get_MPI_size(datatype, count);
+    if (likely (total_size <= bigmpi_int_max )) {
         rc = MPI_Recv(buf, (int)count, datatype, source, tag, comm, status);
     } else {
         MPI_Datatype newtype;
-        MPIX_Type_contiguous_x(count, datatype, &newtype);
+        MPIX_Type_contiguous_x(total_size, MPI_UINT8_T, &newtype);
         MPI_Type_commit(&newtype);
         rc = MPI_Recv(buf, 1, newtype, source, tag, comm, status);
         MPI_Type_free(&newtype);
@@ -36,11 +44,12 @@ int MPIX_Isend_x(const void *buf, MPI_Count count, MPI_Datatype datatype, int de
 {
     int rc = MPI_SUCCESS;
 
-    if (likely (count <= bigmpi_int_max )) {
+    size_t total_size = get_MPI_size(datatype, count);
+    if (likely (total_size <= bigmpi_int_max )) {
         rc = MPI_Isend(buf, (int)count, datatype, dest, tag, comm, request);
     } else {
         MPI_Datatype newtype;
-        MPIX_Type_contiguous_x(count, datatype, &newtype);
+        MPIX_Type_contiguous_x(total_size, MPI_UINT8_T, &newtype);
         MPI_Type_commit(&newtype);
         rc = MPI_Isend(buf, 1, newtype, dest, tag, comm, request);
         MPI_Type_free(&newtype);
@@ -52,11 +61,12 @@ int MPIX_Irecv_x(void *buf, MPI_Count count, MPI_Datatype datatype, int source, 
 {
     int rc = MPI_SUCCESS;
 
-    if (likely (count <= bigmpi_int_max )) {
+    size_t total_size = get_MPI_size(datatype, count);
+    if (likely (total_size <= bigmpi_int_max )) {
         rc = MPI_Irecv(buf, (int)count, datatype, source, tag, comm, request);
     } else {
         MPI_Datatype newtype;
-        MPIX_Type_contiguous_x(count, datatype, &newtype);
+        MPIX_Type_contiguous_x(total_size, MPI_UINT8_T, &newtype);
         MPI_Type_commit(&newtype);
         rc = MPI_Irecv(buf, 1, newtype, source, tag, comm, request);
         MPI_Type_free(&newtype);

@@ -13,8 +13,10 @@ function(add_config_option name help_message default)
   set(OPTIONS_LIST "${OPTIONS_LIST}\n\n * ${name}=\"${${name}}\",\n   default=\"${default}\"\n   ${help_message}" PARENT_SCOPE)
 endfunction(add_config_option)
 
-add_config_option(BIGMPI_MAX_INT "Determines which element count BigMPI will assume to be safe." 1000000)
-add_config_option(BIGMPI_VCOLLS "Selects which flavor should be used for the implementation of vector collectives (valid options:  RMA, P2P, NBHD_ALLTOALLW)" RMA)
+#INT32_MAX
+add_config_option(BIGMPI_MAX_INT "Determines which element count BigMPI will assume to be safe." 2147483647)
+# RMA not implemented - doesn't really matter which you select here, since internally it's hard-coded to P2P
+add_config_option(BIGMPI_VCOLLS "Selects which flavor should be used for the implementation of vector collectives (valid options:  RMA, P2P, NBHD_ALLTOALLW)" P2P)
 add_config_option(LIB_LINKAGE_TYPE "Controls which type of library to build. Suggested: SHARED on Linux (creates a shared object \"bigmpi.so\"), STATIC should work for builds on Cray and Windows." "SHARED" false)
 add_config_option(TEST_COVERAGE_VERBOSITY "Sets the verbosity of the test coverage reoprt (0 = off, 1 = summary, 2 = verbose listing)" 1)
 

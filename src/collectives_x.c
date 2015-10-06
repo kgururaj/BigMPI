@@ -20,18 +20,26 @@ int MPIX_Gather_x(const void *sendbuf, MPI_Count sendcount, MPI_Datatype sendtyp
                   void *recvbuf, MPI_Count recvcount, MPI_Datatype recvtype, int root, MPI_Comm comm)
 {
     int rc = MPI_SUCCESS;
-
-    if (likely (sendcount <= bigmpi_int_max && recvcount <= bigmpi_int_max )) {
+    size_t send_size = get_MPI_size(sendtype, sendcount);
+    int num_processes = 0;
+    MPI_Comm_size(comm, &num_processes);
+    size_t recv_size = get_MPI_size(recvtype, recvcount);
+    size_t total_recv_size = recv_size*num_processes;
+    if (likely (total_recv_size <= bigmpi_int_max && send_size <= bigmpi_int_max )) {
         rc = MPI_Gather(sendbuf, (int)sendcount, sendtype, recvbuf, (int)recvcount, recvtype, root, comm);
     } else {
-        MPI_Datatype newsendtype, newrecvtype;
-        MPIX_Type_contiguous_x(sendcount, sendtype, &newsendtype);
-        MPIX_Type_contiguous_x(recvcount, recvtype, &newrecvtype);
-        MPI_Type_commit(&newsendtype);
-        MPI_Type_commit(&newrecvtype);
-        rc = MPI_Gather(sendbuf, 1, newsendtype, recvbuf, 1, newrecvtype, root, comm);
-        MPI_Type_free(&newsendtype);
-        MPI_Type_free(&newrecvtype);
+        MPI_Count* recvcounts = (MPI_Count*)malloc(num_processes*sizeof(MPI_Count));
+        MPI_Aint* rdispls = (MPI_Aint*)malloc(num_processes*sizeof(MPI_Aint));
+        MPI_Aint curr_displ = 0;
+        for(int i=0;i<num_processes;++i)
+        {
+            recvcounts[i] = recv_size;
+            rdispls[i] = curr_displ;
+            curr_displ += recv_size;
+        }
+        MPIX_Gatherv_x(sendbuf, send_size, MPI_UINT8_T, recvbuf, recvcounts, rdispls, MPI_UINT8_T, root, comm);
+        free(recvcounts);
+        free(rdispls);
     }
     return rc;
 }

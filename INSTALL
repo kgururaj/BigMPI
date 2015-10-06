@@ -1,13 +1,18 @@
 # CMake
-Make sure mpicc and correct gcc version are in your PATH.
+#
+Requires MPI-3.0 compatible implementation to work correctly. I have been working with
+mvapich2-2.2a.
+
+Make sure that the correct mpicc and gcc versions are in your PATH.
 
 Ideally, cmake should take care of everything, but a config file fails to be produced.
 
-
-cmake . -DLIB_LINKAGE_TYPE="STATIC"
+cmake . -DLIB_LINKAGE_TYPE="STATIC" -DCMAKE_C_COMPILER=mpicc
 ./autogen.sh
 ./configure 
-cmake . -DLIB_LINKAGE_TYPE="STATIC"
+#Cmake "clean"
+rm -rf `find . -name CMakeFiles` CMakeCache.txt
+cmake . -DLIB_LINKAGE_TYPE="STATIC" -DCMAKE_C_COMPILER=mpicc
 export CPATH=$PWD/src
 make test
 
